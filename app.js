@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 const crypto = require('crypto');
+require('dotenv').config();
 
 
 const app = express();
@@ -23,15 +24,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 /*BigQuery*/
 
 const {BigQuery} = require('@google-cloud/bigquery');
+const credential = JSON.parse(
+    Buffer.from(process.env.GCP_SERVICE_KEY, "base64").toString().replace(/\n/g,"")
+)
+console.log(credential)
 const options = {
-  keyFilename: path.join(__dirname, 'coral-circlet-403815-1d277f08cf3f.json'),
-  projectId: 'coral-circlet-403815',
+  credentials: credential,
+  projectId: process.env.GCP_PROJECT_ID,
 };
 const bigquery = new BigQuery(options);
-const datasetId = 'help_desk'
-const tableId = 'tickets'
+const datasetId = process.env.GCP_DATASET_ID
+const tableId = process.env.GCP_TABLE_ID
 
-app.post("/add_ticket", (req, res) => {
+app.post(process.env.URL_ENDPOINT_ADD, (req, res) => {
   let newTicket = {
     uuid: crypto.randomUUID(),
     name: req.body.name,
@@ -47,7 +52,7 @@ app.post("/add_ticket", (req, res) => {
 
 });
 
-app.post("/update_ticket", (req, res) => {
+app.post(process.env.URL_ENDPOINT_UPDATE, (req, res) => {
 
   console.log(req.body)
   const uuid = req.body.uuid;
@@ -57,7 +62,7 @@ app.post("/update_ticket", (req, res) => {
   async function updateRow() {
 
     const options = {
-      location: 'US',
+      location: process.env.GCP_CONFIG_LOCATION,
     };
 
     let query;
@@ -86,7 +91,7 @@ app.post("/update_ticket", (req, res) => {
 
 });
 
-app.get('/tickets', async (req, res) => {
+app.get(process.env.URL_ENDPOINT_LIST, async (req, res) => {
 
   async function getAll() {
 
@@ -94,7 +99,7 @@ app.get('/tickets', async (req, res) => {
 
     const options = {
       query,
-      location: 'US',
+      location: process.env.GCP_CONFIG_LOCATION,
     };
 
     try {

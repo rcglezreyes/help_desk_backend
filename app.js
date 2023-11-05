@@ -14,7 +14,7 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors())
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -37,8 +37,6 @@ const datasetId = process.env.GCP_DATASET_ID
 const tableId = process.env.GCP_TABLE_ID
 
 app.post(process.env.URL_ENDPOINT_ADD, (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
   let newTicket = {
     uuid: crypto.randomUUID(),
     name: req.body.name,
@@ -55,8 +53,6 @@ app.post(process.env.URL_ENDPOINT_ADD, (req, res) => {
 });
 
 app.post(process.env.URL_ENDPOINT_UPDATE, (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
   const uuid = req.body.uuid;
   const status = req.body.status;
   const writeResponse = req.body.response;
@@ -94,8 +90,6 @@ app.post(process.env.URL_ENDPOINT_UPDATE, (req, res) => {
 });
 
 app.get(process.env.URL_ENDPOINT_LIST, async (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
   async function getAll() {
 
     const query = `SELECT * FROM ${datasetId}.${tableId} ORDER BY name ASC`;
